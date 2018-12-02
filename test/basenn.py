@@ -38,7 +38,7 @@ l1=add_layer(xs,1,10,tf.nn.relu)
 prediction=add_layer(l1,10,1,None)
 
 loss=tf.reduce_mean(tf.reduce_sum(np.square(ys-prediction),reduction_indices=[1]))
-train_step=tf.train.GradientDescentOptimizer(0.1).minimize(loss)
+train_step=tf.train.AdamOptimizer(0.1).minimize(loss)
 
 init=tf.global_variables_initializer()
 sess=tf.Session()
