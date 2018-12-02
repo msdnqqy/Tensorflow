@@ -18,7 +18,7 @@ def add_layer(input,in_size,out_size,activation_function=None,name='default'):
 
         with tf.name_scope('weights'):
             Weights=tf.Variable(tf.random_normal([in_size,out_size]),name='weights')
-        
+            tf.summary.histogram('weights',Weights)
         with tf.name_scope('biases'):
             biases=tf.Variable(tf.zeros([1,out_size])+0.1,name='biases')
 
@@ -49,12 +49,16 @@ prediction=add_layer(l1,10,1,None,'2')
 
 with tf.name_scope('loss'):
     loss=tf.reduce_mean(tf.reduce_sum(np.square(ys-prediction),reduction_indices=[1]))
+    tf.summary.scalar('loss',loss)
 
 with tf.name_scope('train'):
     train_step=tf.train.AdamOptimizer(0.1).minimize(loss)
 
 init=tf.global_variables_initializer()
 sess=tf.Session()
+
+merge=tf.summary.merge_all()
+
 writer=tf.summary.FileWriter('logs/',sess.graph)
 sess.run(init)
 
@@ -64,6 +68,7 @@ for i in range(2000):
         print(sess.run(loss,feed_dict={xs:x_data,ys:y_data}))
         predict=sess.run(prediction,feed_dict={xs:x_data,ys:y_data})
 
+        writer.add_summary(sess.run(merge,feed_dict={xs:x_data,ys:y_data}),i)
         try:
             ax.lines.remove(lines[0])
         except Exception:
