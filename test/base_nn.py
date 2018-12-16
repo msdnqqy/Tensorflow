@@ -52,8 +52,10 @@ class NetWork(object):
             nabla_w=[nw+dnw for nw,dnw in zip(nabla_w,delta_nabla_w)]
 
 
-        self.weights-=(lr/len(train_data))*nabla_w
-        self.biases-=(lr/len(train_data))*nabla_b
+        # self.weights-=(lr/len(train_data))*nabla_w
+        # self.biases-=(lr/len(train_data))*nabla_b
+        self.weights=[w-(lr/len(train_data))*nw for w,nw in zip(self.weights,nabla_w)]
+        self.biases=[b-(lr/len(train_data))*nb for b,nb in zip(self.biases,nabla_b)]
 
 
     #求梯度
@@ -97,10 +99,14 @@ class NetWork(object):
         return self.sigmoid(z)*(1-self.sigmoid(z))
 
     def evaluate(self,test_data):
-        test_results=[(np.argmax(self.feedforward(x)),y) for (x,y) in test_data]
+        test_results=[(np.argmax(self.feedforward(x)),np.argmax(y)) for (x,y) in test_data]
 
         return sum(int(x==y) for (x,y) in test_results)
 
+    def feedforward(self,a):
+        for w,b in zip(self.weights,self.biases):
+            a=self.sigmoid(np.dot(w,a)+b)
+        return a
 
 
 if __name__ == "__main__":
@@ -109,8 +115,8 @@ if __name__ == "__main__":
     train_data=[]
     test_data=[]
     for i in range(6000):
-        train_data.append((mnist.train.images[i],mnist.train.labels[i]))
-        test_data.append((mnist.test.images[i],mnist.test.labels[i]))
+        train_data.append((mnist.train.images[i][:,np.newaxis],mnist.train.labels[i][:,np.newaxis]))
+        test_data.append((mnist.test.images[i][:,np.newaxis],mnist.test.labels[i][:,np.newaxis]))
 
 
     train_data=np.array(train_data)
